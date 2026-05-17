@@ -52,6 +52,17 @@ function aspectZ() {
   return parseFloat(els.exag.value);
 }
 
+// Geographic aspect so the top-down view is not stretched: longitude
+// degrees are physically shorter than latitude by cos(latitude).
+function geoAspect(bbox) {
+  const [minLon, minLat, maxLon, maxLat] = bbox;
+  const meanLat = ((minLat + maxLat) / 2) * (Math.PI / 180);
+  const nx = Math.abs(maxLon - minLon) * Math.cos(meanLat);
+  const ny = Math.abs(maxLat - minLat);
+  const m = Math.max(nx, ny) || 1;
+  return { x: (nx / m) * 1.8, y: (ny / m) * 1.8, z: aspectZ() };
+}
+
 // Land ramps: list of colours from low to high elevation.
 const LAND_RAMPS = {
   terrain: ["#1a9850", "#a6d96a", "#fee08b", "#d8843b", "#8c5109", "#ffffff"],
@@ -116,11 +127,16 @@ function render(data) {
     scene: {
       dragmode: "orbit",
       aspectmode: "manual",
-      aspectratio: { x: 1.6, y: 1.2, z: aspectZ() },
-      xaxis: { title: "경도", color: "#9aa4b2", backgroundcolor: "#0e1117" },
-      yaxis: { title: "위도", color: "#9aa4b2", backgroundcolor: "#0e1117" },
+      aspectratio: geoAspect(data.bbox),
+      xaxis: { title: "경도 (서→동)", color: "#9aa4b2", backgroundcolor: "#0e1117" },
+      yaxis: { title: "위도 (남→북)", color: "#9aa4b2", backgroundcolor: "#0e1117" },
       zaxis: { title: "고도 (m)", color: "#9aa4b2", backgroundcolor: "#0e1117" },
-      camera: { eye: { x: 1.5, y: 1.5, z: 1.0 } },
+      // Initial view: straight down (map-like), north up / east right.
+      camera: {
+        eye: { x: 0, y: 0, z: 2.2 },
+        up: { x: 0, y: 1, z: 0 },
+        center: { x: 0, y: 0, z: 0 },
+      },
     },
   };
   const config = { responsive: true, displaylogo: false, scrollZoom: true };
