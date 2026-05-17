@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>3D 해발 고도 지도</title>
-<script src="/static/plotly.min.js"></script>
+<script src="plotly.min.js"></script>
 <style>
   * { box-sizing: border-box; }
-  html, body { margin: 0; height: 100%; font-family: -apple-system, "Segoe UI", Roboto, "Noto Sans KR", sans-serif; background: #0e1117; color: #e6e6e6; }
+  html, body { margin: 0; height: 100%; font-family: -apple-system, "Segoe UI", Roboto, "Noto Sans KR", sans-serif; background: #0e1117; color: #e6e6e6; overscroll-behavior: none; }
   #app { display: flex; flex-direction: column; height: 100%; }
   header { padding: 10px 14px; background: #161b22; border-bottom: 1px solid #2a2f3a; }
   header h1 { font-size: 16px; margin: 0 0 8px; font-weight: 600; }
@@ -15,12 +15,12 @@
   .controls label { font-size: 12px; color: #9aa4b2; display: flex; flex-direction: column; gap: 3px; }
   select, button {
     font-size: 14px; padding: 7px 10px; border-radius: 6px;
-    border: 1px solid #30363d; background: #21262d; color: #e6e6e6; min-height: 38px;
+    border: 1px solid #30363d; background: #21262d; color: #e6e6e6; min-height: 40px;
   }
   button#load { background: #2563eb; border-color: #2563eb; color: #fff; font-weight: 600; cursor: pointer; }
-  button#load:disabled { opacity: .6; cursor: default; }
+  button#load:disabled { opacity: .6; }
   .range-wrap { display: flex; flex-direction: column; gap: 3px; min-width: 150px; }
-  input[type=range] { width: 100%; }
+  input[type=range] { width: 100%; height: 28px; }
   #plot { flex: 1; min-height: 0; }
   #status { padding: 6px 14px; font-size: 12px; color: #9aa4b2; background: #161b22; border-top: 1px solid #2a2f3a; }
   #status.error { color: #ff7b72; }
@@ -35,15 +35,9 @@
   <header>
     <h1>3D 해발 고도 지도</h1>
     <div class="controls">
-      <label>대륙
-        <select id="continent"></select>
-      </label>
-      <label>국가
-        <select id="country"></select>
-      </label>
-      <label>도시
-        <select id="city"></select>
-      </label>
+      <label>대륙<select id="continent"></select></label>
+      <label>국가<select id="country"></select></label>
+      <label>도시<select id="city"></select></label>
       <label>육지 색상
         <select id="colorscale">
           <option value="terrain" selected>지형 (초록→갈색→설산)</option>
@@ -60,8 +54,9 @@
     </div>
   </header>
   <div id="plot"></div>
-  <div id="status">대륙과 국가를 선택한 뒤 "불러오기"를 누르세요. (국가를 "(대륙 전체)"로 두면 대륙 전체가 표시됩니다.)</div>
+  <div id="status">대륙·국가·도시를 선택하고 "불러오기"를 누르세요.</div>
 </div>
-<script src="/static/app.js"></script>
+<script src="geo.js"></script>
+<script src="app.js"></script>
 </body>
 </html>

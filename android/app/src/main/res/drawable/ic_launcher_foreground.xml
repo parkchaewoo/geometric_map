@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Safe zone is the central 72x72 (offset 18..90). -->
+    <path
+        android:fillColor="#2171b5"
+        android:pathData="M22,74 L86,74 L86,86 L22,86 Z" />
+    <path
+        android:fillColor="#1a9850"
+        android:pathData="M22,74 L42,44 L56,62 L70,38 L86,74 Z" />
+    <path
+        android:fillColor="#ffffff"
+        android:pathData="M64,47 L70,38 L76,47 L72,49 L70,45 L68,49 Z" />
+    <path
+        android:fillColor="#fee08b"
+        android:pathData="M36,52 L42,44 L48,52 L44,55 L42,51 L40,55 Z" />
+</vector>

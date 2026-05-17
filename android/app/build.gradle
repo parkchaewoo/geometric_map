@@ -1,0 +1,71 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+}
+
+// Optional release signing: create android/keystore.properties (gitignored):
+//   storeFile=/abs/path/release.jks
+//   storePassword=...
+//   keyAlias=...
+//   keyPassword=...
+def keystorePropsFile = rootProject.file("keystore.properties")
+def hasKeystore = keystorePropsFile.exists()
+def keystoreProps = new Properties()
+if (hasKeystore) keystoreProps.load(new FileInputStream(keystorePropsFile))
+
+android {
+    namespace 'com.geomap.elevation'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.geomap.elevation"
+        minSdk 26
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+    }
+
+    if (hasKeystore) {
+        signingConfigs {
+            release {
+                storeFile file(keystoreProps['storeFile'])
+                storePassword keystoreProps['storePassword']
+                keyAlias keystoreProps['keyAlias']
+                keyPassword keystoreProps['keyPassword']
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            if (hasKeystore) signingConfig signingConfigs.release
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+}
+
+// Bundle the shared web app (../../web) into the APK as WebView assets.
+// web/ is the single source of truth, shared with the desktop dev server.
+def webSrc = rootProject.file("../web")
+def webDst = file("src/main/assets/web")
+
+tasks.register('syncWebAssets', Copy) {
+    from webSrc
+    into webDst
+}
+tasks.named('preBuild') { dependsOn 'syncWebAssets' }
+clean { delete webDst }
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.webkit:webkit:1.11.0'
+}

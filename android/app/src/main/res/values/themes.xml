@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.GeoMap" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="android:statusBarColor">#161b22</item>
+        <item name="android:navigationBarColor">#161b22</item>
+        <item name="android:windowBackground">#0e1117</item>
+    </style>
+</resources>
