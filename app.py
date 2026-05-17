@@ -75,5 +75,7 @@ def api_elevation():
 
 if __name__ == "__main__":
     ensure_plotly_js()
-    print("3D elevation map running at http://localhost:5000")
-    app.run(host="0.0.0.0", port=5000, debug=False)
+    # macOS AirPlay Receiver occupies 5000; default to 5050, override via PORT.
+    port = int(os.environ.get("PORT", "5050"))
+    print(f"3D elevation map running at http://localhost:{port}")
+    app.run(host="0.0.0.0", port=port, debug=False)
