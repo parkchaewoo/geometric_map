@@ -3,6 +3,7 @@
 const els = {
   continent: document.getElementById("continent"),
   country: document.getElementById("country"),
+  city: document.getElementById("city"),
   colorscale: document.getElementById("colorscale"),
   exag: document.getElementById("exag"),
   exagVal: document.getElementById("exagVal"),
@@ -45,6 +46,25 @@ function populateCountries() {
     o.value = ct.code;
     o.textContent = ct.name;
     els.country.appendChild(o);
+  });
+  populateCities();
+}
+
+function populateCities() {
+  const cont = regionsData.find((c) => c.continent === els.continent.value);
+  els.city.innerHTML = "";
+  const all = document.createElement("option");
+  all.value = "";
+  all.textContent = "(국가 전체)";
+  els.city.appendChild(all);
+  if (!cont) return;
+  const country = cont.countries.find((c) => c.code === els.country.value);
+  if (!country) return;
+  (country.cities || []).forEach((ct) => {
+    const o = document.createElement("option");
+    o.value = ct.code;
+    o.textContent = ct.name;
+    els.city.appendChild(o);
   });
 }
 
@@ -146,8 +166,10 @@ function render(data) {
 async function loadElevation() {
   const continent = els.continent.value;
   const country = els.country.value;
+  const city = els.city.value;
   const params = new URLSearchParams({ continent });
   if (country) params.set("country", country);
+  if (city) params.set("city", city);
 
   els.load.disabled = true;
   setStatus("고도 데이터를 불러오는 중… (타일 다운로드, 잠시 걸릴 수 있습니다)");
@@ -169,6 +191,7 @@ async function loadElevation() {
 }
 
 els.continent.addEventListener("change", populateCountries);
+els.country.addEventListener("change", populateCities);
 els.colorscale.addEventListener("change", () => {
   if (lastData) render(lastData);
 });

@@ -53,16 +53,17 @@ def api_regions():
 def api_elevation():
     continent = request.args.get("continent", "").strip()
     country = request.args.get("country", "").strip() or None
+    city = request.args.get("city", "").strip() or None
     if not continent:
         return jsonify({"error": "continent is required"}), 400
     try:
-        bbox, label = regions.resolve_bbox(continent, country)
+        bbox, label = regions.resolve_bbox(continent, country, city)
     except (KeyError, ValueError) as e:
         return jsonify({"error": str(e)}), 400
 
-    # Continent view: coarser (more area, fewer tiles allowed per side).
-    # Country view: denser detail.
-    max_tiles = 48 if country else 80
+    # City: tightest area, allow the most tiles for finest detail.
+    # Country: medium. Continent: coarsest.
+    max_tiles = 100 if city else (48 if country else 80)
     try:
         data = elevation.build_grid(bbox, target=220, max_tiles=max_tiles)
     except RuntimeError as e:
