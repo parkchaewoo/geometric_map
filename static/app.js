@@ -52,6 +52,44 @@ function aspectZ() {
   return parseFloat(els.exag.value);
 }
 
+// Land ramps: list of colours from low to high elevation.
+const LAND_RAMPS = {
+  terrain: ["#1a9850", "#a6d96a", "#fee08b", "#d8843b", "#8c5109", "#ffffff"],
+  green: ["#00441b", "#238b45", "#66c2a4", "#ccece6"],
+  viridis: ["#440154", "#3b528b", "#21908d", "#5dc962", "#fde725"],
+  gray: ["#222222", "#666666", "#aaaaaa", "#ffffff"],
+};
+// Water ramp: deep -> shallow, used for everything below sea level.
+const WATER_RAMP = ["#08306b", "#08519c", "#2171b5", "#6baed6"];
+
+// Build a Plotly colorscale whose colour breaks exactly at elevation 0,
+// so sea (blue) and land (terrain) are unmistakable.
+function landSeaColorscale(zmin, zmax, paletteKey) {
+  const land = LAND_RAMPS[paletteKey] || LAND_RAMPS.terrain;
+  const span = zmax - zmin;
+  let f0 = span > 0 ? (0 - zmin) / span : 0; // fraction at elevation 0
+  f0 = Math.max(0, Math.min(1, f0));
+  const cs = [];
+  if (f0 <= 0) {
+    land.forEach((c, i) => cs.push([i / (land.length - 1), c]));
+    return cs;
+  }
+  if (f0 >= 1) {
+    WATER_RAMP.forEach((c, i) => cs.push([i / (WATER_RAMP.length - 1), c]));
+    return cs;
+  }
+  WATER_RAMP.forEach((c, i) =>
+    cs.push([(i / (WATER_RAMP.length - 1)) * f0 * 0.999, c])
+  );
+  cs.push([f0, WATER_RAMP[WATER_RAMP.length - 1]]); // end of water band
+  land.forEach((c, i) =>
+    cs.push([f0 + (i / (land.length - 1)) * (1 - f0), c])
+  );
+  cs[0][0] = 0;
+  cs[cs.length - 1][0] = 1;
+  return cs;
+}
+
 function render(data) {
   lastData = data;
   const trace = {
@@ -59,7 +97,9 @@ function render(data) {
     x: data.lons,
     y: data.lats,
     z: data.z,
-    colorscale: els.colorscale.value,
+    colorscale: landSeaColorscale(data.zmin, data.zmax, els.colorscale.value),
+    cmin: data.zmin,
+    cmax: data.zmax,
     colorbar: { title: "고도 (m)", tickfont: { color: "#cfd6e0" } },
     hovertemplate:
       "위도 %{y:.3f}°<br>경도 %{x:.3f}°<br>고도 %{z:.0f} m<extra></extra>",

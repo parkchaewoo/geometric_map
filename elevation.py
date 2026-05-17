@@ -173,17 +173,26 @@ def build_grid(bbox, target=200, max_tiles=MAX_TILES):
     lons = np.linspace(min_lon, max_lon, gw)
     lats = np.linspace(max_lat, min_lat, gh)  # row 0 = north
 
-    # "해발 고도" view: clamp non-finite and sub-sea bathymetry to sea level
-    # so ocean depth does not crush land relief in the surface graph.
     grid = np.where(np.isfinite(grid), grid, 0.0)
-    grid = np.maximum(grid, 0.0)
+
+    # Land vs sea: anything at/below 0 m is treated as sea. Instead of
+    # flattening sea to exactly 0 (which makes coastline invisible against
+    # low land), drop sea to a flat plane slightly below 0 so a visible
+    # step appears at the shoreline. The colour break at elevation 0 in the
+    # frontend then makes land/sea unmistakable.
+    land = np.maximum(grid, 0.0)
+    land_max = float(np.nanmax(land)) if land.size else 0.0
+    sea_z = -max(40.0, 0.05 * land_max)
+    is_sea = grid <= 0.0
+    out = np.where(is_sea, sea_z, land)
 
     return {
         "lons": [round(float(v), 5) for v in lons],
         "lats": [round(float(v), 5) for v in lats],
-        "z": [[round(float(v), 1) for v in row] for row in grid],
-        "zmin": round(float(np.nanmin(grid)), 1),
-        "zmax": round(float(np.nanmax(grid)), 1),
+        "z": [[round(float(v), 1) for v in row] for row in out],
+        "zmin": round(float(sea_z), 1),
+        "zmax": round(float(land_max), 1),
+        "sea_z": round(float(sea_z), 1),
         "zoom": z,
         "shape": [int(gh), int(gw)],
     }
